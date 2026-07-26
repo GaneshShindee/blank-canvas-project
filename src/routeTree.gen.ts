@@ -9,33 +9,37 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
-import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
-import { Route as AuthenticatedSendRouteImport } from './routes/_authenticated/send'
-import { Route as AuthenticatedResumesRouteImport } from './routes/_authenticated/resumes'
-import { Route as AuthenticatedRepliesRouteImport } from './routes/_authenticated/replies'
-import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
-import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
-import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
-import { Route as AuthenticatedFollowupsRouteImport } from './routes/_authenticated/followups'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authenticated/analytics'
-import { Route as AuthenticatedResumeStudioIndexRouteImport } from './routes/_authenticated/resume-studio/index'
-import { Route as ApiLatexCompileRouteImport } from './routes/api/latex/compile'
-import { Route as AuthenticatedResumeStudioIdRouteImport } from './routes/_authenticated/resume-studio/$id'
-import { Route as AuthenticatedRecipientsIdRouteImport } from './routes/_authenticated/recipients.$id'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedFollowupsRouteImport } from './routes/_authenticated/followups'
+import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
+import { Route as AuthenticatedJobsRouteImport } from './routes/_authenticated/jobs'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedRepliesRouteImport } from './routes/_authenticated/replies'
+import { Route as AuthenticatedResumesRouteImport } from './routes/_authenticated/resumes'
+import { Route as AuthenticatedSendRouteImport } from './routes/_authenticated/send'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
 import { Route as AuthenticatedCampaignsIdRouteImport } from './routes/_authenticated/campaigns.$id'
+import { Route as AuthenticatedRecipientsIdRouteImport } from './routes/_authenticated/recipients.$id'
+import { Route as AuthenticatedResumeStudioIndexRouteImport } from './routes/_authenticated/resume-studio/index'
+import { Route as AuthenticatedResumeStudioIdRouteImport } from './routes/_authenticated/resume-studio/$id'
+import { Route as ApiLatexCompileRouteImport } from './routes/api/latex/compile'
 import { Route as ApiPublicGmailCallbackRouteImport } from './routes/api/public/gmail/callback'
-import { Route as ApiPublicTrackPdfTokenRouteImport } from './routes/api/public/track/pdf/$token'
 import { Route as ApiPublicTrackOpenTokenRouteImport } from './routes/api/public/track/open/$token'
+import { Route as ApiPublicTrackPdfTokenRouteImport } from './routes/api/public/track/pdf/$token'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -43,38 +47,34 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedTemplatesRoute = AuthenticatedTemplatesRouteImport.update({
-  id: '/templates',
-  path: '/templates',
+const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedSendRoute = AuthenticatedSendRouteImport.update({
-  id: '/send',
-  path: '/send',
+const AuthenticatedFollowupsRoute = AuthenticatedFollowupsRouteImport.update({
+  id: '/followups',
+  path: '/followups',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedResumesRoute = AuthenticatedResumesRouteImport.update({
-  id: '/resumes',
-  path: '/resumes',
+const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedRepliesRoute = AuthenticatedRepliesRouteImport.update({
-  id: '/replies',
-  path: '/replies',
+const AuthenticatedJobsRoute = AuthenticatedJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedNotificationsRoute =
@@ -83,46 +83,35 @@ const AuthenticatedNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedJobsRoute = AuthenticatedJobsRouteImport.update({
-  id: '/jobs',
-  path: '/jobs',
+const AuthenticatedRepliesRoute = AuthenticatedRepliesRouteImport.update({
+  id: '/replies',
+  path: '/replies',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
+const AuthenticatedResumesRoute = AuthenticatedResumesRouteImport.update({
+  id: '/resumes',
+  path: '/resumes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedFollowupsRoute = AuthenticatedFollowupsRouteImport.update({
-  id: '/followups',
-  path: '/followups',
+const AuthenticatedSendRoute = AuthenticatedSendRouteImport.update({
+  id: '/send',
+  path: '/send',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedAnalyticsRoute = AuthenticatedAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
+const AuthenticatedTemplatesRoute = AuthenticatedTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedResumeStudioIndexRoute =
-  AuthenticatedResumeStudioIndexRouteImport.update({
-    id: '/resume-studio/',
-    path: '/resume-studio/',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const ApiLatexCompileRoute = ApiLatexCompileRouteImport.update({
-  id: '/api/latex/compile',
-  path: '/api/latex/compile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedResumeStudioIdRoute =
-  AuthenticatedResumeStudioIdRouteImport.update({
-    id: '/resume-studio/$id',
-    path: '/resume-studio/$id',
+const AuthenticatedCampaignsIdRoute =
+  AuthenticatedCampaignsIdRouteImport.update({
+    id: '/campaigns/$id',
+    path: '/campaigns/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedRecipientsIdRoute =
@@ -131,25 +120,36 @@ const AuthenticatedRecipientsIdRoute =
     path: '/recipients/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const AuthenticatedCampaignsIdRoute =
-  AuthenticatedCampaignsIdRouteImport.update({
-    id: '/campaigns/$id',
-    path: '/campaigns/$id',
+const AuthenticatedResumeStudioIndexRoute =
+  AuthenticatedResumeStudioIndexRouteImport.update({
+    id: '/resume-studio/',
+    path: '/resume-studio/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedResumeStudioIdRoute =
+  AuthenticatedResumeStudioIdRouteImport.update({
+    id: '/resume-studio/$id',
+    path: '/resume-studio/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const ApiLatexCompileRoute = ApiLatexCompileRouteImport.update({
+  id: '/api/latex/compile',
+  path: '/api/latex/compile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicGmailCallbackRoute = ApiPublicGmailCallbackRouteImport.update({
   id: '/api/public/gmail/callback',
   path: '/api/public/gmail/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicTrackPdfTokenRoute = ApiPublicTrackPdfTokenRouteImport.update({
-  id: '/api/public/track/pdf/$token',
-  path: '/api/public/track/pdf/$token',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ApiPublicTrackOpenTokenRoute = ApiPublicTrackOpenTokenRouteImport.update({
   id: '/api/public/track/open/$token',
   path: '/api/public/track/open/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTrackPdfTokenRoute = ApiPublicTrackPdfTokenRouteImport.update({
+  id: '/api/public/track/pdf/$token',
+  path: '/api/public/track/pdf/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -316,18 +316,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -337,74 +330,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/templates': {
-      id: '/_authenticated/templates'
-      path: '/templates'
-      fullPath: '/templates'
-      preLoaderRoute: typeof AuthenticatedTemplatesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/settings': {
-      id: '/_authenticated/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/send': {
-      id: '/_authenticated/send'
-      path: '/send'
-      fullPath: '/send'
-      preLoaderRoute: typeof AuthenticatedSendRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/resumes': {
-      id: '/_authenticated/resumes'
-      path: '/resumes'
-      fullPath: '/resumes'
-      preLoaderRoute: typeof AuthenticatedResumesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/replies': {
-      id: '/_authenticated/replies'
-      path: '/replies'
-      fullPath: '/replies'
-      preLoaderRoute: typeof AuthenticatedRepliesRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/notifications': {
-      id: '/_authenticated/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/jobs': {
-      id: '/_authenticated/jobs'
-      path: '/jobs'
-      fullPath: '/jobs'
-      preLoaderRoute: typeof AuthenticatedJobsRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/history': {
-      id: '/_authenticated/history'
-      path: '/history'
-      fullPath: '/history'
-      preLoaderRoute: typeof AuthenticatedHistoryRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/followups': {
-      id: '/_authenticated/followups'
-      path: '/followups'
-      fullPath: '/followups'
-      preLoaderRoute: typeof AuthenticatedFollowupsRouteImport
+    '/_authenticated/analytics': {
+      id: '/_authenticated/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AuthenticatedAnalyticsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -414,39 +358,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/analytics': {
-      id: '/_authenticated/analytics'
-      path: '/analytics'
-      fullPath: '/analytics'
-      preLoaderRoute: typeof AuthenticatedAnalyticsRouteImport
+    '/_authenticated/followups': {
+      id: '/_authenticated/followups'
+      path: '/followups'
+      fullPath: '/followups'
+      preLoaderRoute: typeof AuthenticatedFollowupsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/resume-studio/': {
-      id: '/_authenticated/resume-studio/'
-      path: '/resume-studio'
-      fullPath: '/resume-studio/'
-      preLoaderRoute: typeof AuthenticatedResumeStudioIndexRouteImport
+    '/_authenticated/history': {
+      id: '/_authenticated/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof AuthenticatedHistoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/api/latex/compile': {
-      id: '/api/latex/compile'
-      path: '/api/latex/compile'
-      fullPath: '/api/latex/compile'
-      preLoaderRoute: typeof ApiLatexCompileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/resume-studio/$id': {
-      id: '/_authenticated/resume-studio/$id'
-      path: '/resume-studio/$id'
-      fullPath: '/resume-studio/$id'
-      preLoaderRoute: typeof AuthenticatedResumeStudioIdRouteImport
+    '/_authenticated/jobs': {
+      id: '/_authenticated/jobs'
+      path: '/jobs'
+      fullPath: '/jobs'
+      preLoaderRoute: typeof AuthenticatedJobsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/recipients/$id': {
-      id: '/_authenticated/recipients/$id'
-      path: '/recipients/$id'
-      fullPath: '/recipients/$id'
-      preLoaderRoute: typeof AuthenticatedRecipientsIdRouteImport
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/replies': {
+      id: '/_authenticated/replies'
+      path: '/replies'
+      fullPath: '/replies'
+      preLoaderRoute: typeof AuthenticatedRepliesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/resumes': {
+      id: '/_authenticated/resumes'
+      path: '/resumes'
+      fullPath: '/resumes'
+      preLoaderRoute: typeof AuthenticatedResumesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/send': {
+      id: '/_authenticated/send'
+      path: '/send'
+      fullPath: '/send'
+      preLoaderRoute: typeof AuthenticatedSendRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/templates': {
+      id: '/_authenticated/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof AuthenticatedTemplatesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/campaigns/$id': {
@@ -456,6 +428,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCampaignsIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/recipients/$id': {
+      id: '/_authenticated/recipients/$id'
+      path: '/recipients/$id'
+      fullPath: '/recipients/$id'
+      preLoaderRoute: typeof AuthenticatedRecipientsIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/resume-studio/': {
+      id: '/_authenticated/resume-studio/'
+      path: '/resume-studio'
+      fullPath: '/resume-studio/'
+      preLoaderRoute: typeof AuthenticatedResumeStudioIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/resume-studio/$id': {
+      id: '/_authenticated/resume-studio/$id'
+      path: '/resume-studio/$id'
+      fullPath: '/resume-studio/$id'
+      preLoaderRoute: typeof AuthenticatedResumeStudioIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/api/latex/compile': {
+      id: '/api/latex/compile'
+      path: '/api/latex/compile'
+      fullPath: '/api/latex/compile'
+      preLoaderRoute: typeof ApiLatexCompileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/gmail/callback': {
       id: '/api/public/gmail/callback'
       path: '/api/public/gmail/callback'
@@ -463,18 +463,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicGmailCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/track/pdf/$token': {
-      id: '/api/public/track/pdf/$token'
-      path: '/api/public/track/pdf/$token'
-      fullPath: '/api/public/track/pdf/$token'
-      preLoaderRoute: typeof ApiPublicTrackPdfTokenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/api/public/track/open/$token': {
       id: '/api/public/track/open/$token'
       path: '/api/public/track/open/$token'
       fullPath: '/api/public/track/open/$token'
       preLoaderRoute: typeof ApiPublicTrackOpenTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/track/pdf/$token': {
+      id: '/api/public/track/pdf/$token'
+      path: '/api/public/track/pdf/$token'
+      fullPath: '/api/public/track/pdf/$token'
+      preLoaderRoute: typeof ApiPublicTrackPdfTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -532,3 +532,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
