@@ -439,22 +439,6 @@ export const generateApplicationEmail = createServerFn({ method: "POST" })
 const sectionSchema = z.object({
   id: z.string().uuid(),
   section: z.enum(["summary", "experience", "projects", "skills", "ats"]),
-});
-export const improveResumeSection = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => sectionSchema.parse(d))
-  .handler(async ({ data, context }) => {
-    const key = process.env.LOVABLE_API_KEY;
-    if (!key) throw new Error("AI gateway not configured");
-    const { data: v } = await context.supabase
-      .from("resume_versions")
-      .select("tex_content, job_description")
-      .eq("id", data.id)
-      .eq("user_id", context.userId)
-      .single();
-const sectionSchema = z.object({
-  id: z.string().uuid(),
-  section: z.enum(["summary", "experience", "projects", "skills", "ats"]),
   instructions: z.string().max(2000).optional().nullable(),
 });
 export const improveResumeSection = createServerFn({ method: "POST" })
