@@ -398,6 +398,7 @@ const emailFromResumeSchema = z.object({
   versionId: z.string().uuid(),
   senderName: z.string().max(120).optional().nullable(),
   extraInstructions: z.string().max(2000).optional().nullable(),
+  templateId: z.string().uuid().optional().nullable(),
 });
 
 export const generateApplicationEmail = createServerFn({ method: "POST" })
@@ -413,8 +414,41 @@ export const generateApplicationEmail = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .single();
     if (error || !v) throw new Error("Version not found");
-    const sys = "You draft short, sincere job application emails. Return STRICT JSON: {\"subject\":\"...\",\"body\":\"...\"}. Under 180 words. Do not invent facts.";
-    const user = `Sender: ${data.senderName ?? "The applicant"}\nJob title: ${v.job_title ?? ""}\nCompany: ${v.company ?? ""}\nJD:\n${v.job_description.slice(0, 3000)}${data.extraInstructions ? `\n\nExtra:\n${data.extraInstructions}` : ""}\n\nResume LaTeX excerpt (for facts only, do not quote LaTeX):\n${v.tex_content.slice(0, 6000)}`;
+
+    // Load the selected (or default) template, if any, so we can preserve ~90% of its structure.
+    let templateSubject = "";
+    let templateBody = "";
+    let templateName = "";
+    const tplQuery = context.supabase
+      .from("templates")
+      .select("name, subject, body, is_default")
+      .eq("user_id", context.userId);
+    const { data: tpl } = data.templateId
+      ? await tplQuery.eq("id", data.templateId).maybeSingle()
+      : await tplQuery.eq("is_default", true).maybeSingle();
+    if (tpl) { templateName = tpl.name; templateSubject = tpl.subject ?? ""; templateBody = tpl.body ?? ""; }
+
+    const sys = [
+      "You customise an EXISTING job-application email template for a specific role.",
+      "STRICT RULES:",
+      "- Preserve ~90% of the template exactly (structure, tone, paragraphs, sign-off, {{variables}} like {{name}}/{{company}}). Only modify ~10% to make it relevant.",
+      "- Do NOT rewrite the greeting; personalisation happens at send-time.",
+      "- Never invent facts. Only reference experience already present in the RESUME.",
+      "- Concise (100–150 words unless the user asks for more). Simple, professional, recruiter-friendly. Avoid AI clichés.",
+      "- If NO template is supplied, write a short professional email from scratch (100–150 words) using {{name}} for the greeting placeholder.",
+      "- Return STRICT JSON only: {\"subject\":\"...\",\"body\":\"...\"}",
+    ].join("\n");
+    const user = [
+      templateBody || templateSubject
+        ? `SELECTED TEMPLATE (name: ${templateName || "(untitled)"}):\nSUBJECT: ${templateSubject}\n---\nBODY:\n${templateBody}`
+        : "NO TEMPLATE — write from scratch.",
+      `Sender: ${data.senderName ?? "The applicant"}`,
+      `Role: ${v.job_title ?? ""}`,
+      `Company: ${v.company ?? ""}`,
+      `JD (context only):\n${(v.job_description ?? "").slice(0, 4000)}`,
+      data.extraInstructions ? `USER'S ADDITIONAL INSTRUCTIONS (highest priority, still respect the 90/10 rule):\n${data.extraInstructions}` : "",
+      `RESUME (LaTeX, factual reference only — do not quote LaTeX):\n${v.tex_content.slice(0, 6000)}`,
+    ].filter(Boolean).join("\n\n");
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
@@ -431,10 +465,11 @@ export const generateApplicationEmail = createServerFn({ method: "POST" })
     if (!m) throw new Error("AI returned invalid JSON");
     const parsed = JSON.parse(m[0]) as { subject?: string; body?: string };
     return {
-      subject: (parsed.subject ?? `Application: ${v.job_title ?? "Role"}${v.company ? ` at ${v.company}` : ""}`).trim(),
-      body: (parsed.body ?? "").trim(),
+      subject: (parsed.subject ?? templateSubject ?? `Application: ${v.job_title ?? "Role"}${v.company ? ` at ${v.company}` : ""}`).trim(),
+      body: (parsed.body ?? templateBody ?? "").trim(),
     };
   });
+
 
 const sectionSchema = z.object({
   id: z.string().uuid(),
