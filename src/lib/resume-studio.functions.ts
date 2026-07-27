@@ -452,15 +452,48 @@ export const improveResumeSection = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .eq("user_id", context.userId)
       .single();
+const sectionSchema = z.object({
+  id: z.string().uuid(),
+  section: z.enum(["summary", "experience", "projects", "skills", "ats"]),
+  instructions: z.string().max(2000).optional().nullable(),
+});
+export const improveResumeSection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => sectionSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const key = process.env.LOVABLE_API_KEY;
+    if (!key) throw new Error("AI gateway not configured");
+    const { data: v } = await context.supabase
+      .from("resume_versions")
+      .select("tex_content, job_description, job_title, company, custom_instructions")
+      .eq("id", data.id)
+      .eq("user_id", context.userId)
+      .single();
     if (!v) throw new Error("Version not found");
     const focus =
       data.section === "summary" ? "the professional summary / objective section" :
-      data.section === "experience" ? "the work experience bullets" :
-      data.section === "projects" ? "the projects section bullets" :
-      data.section === "skills" ? "the skills section ordering / emphasis" :
-      "keyword coverage across the whole document for ATS";
-    const sys = "You improve ONE section of a LaTeX resume. Return STRICT JSON {\"tex\":\"<full updated file>\"}. Preserve every LaTeX command, package, layout. Never invent facts. Only rewrite words already grounded in the resume's existing content.";
-    const user = `Improve ${focus}. JD context:\n${(v.job_description ?? "").slice(0, 3000)}\n\nCurrent LaTeX (return the FULL file back):\n${v.tex_content}`;
+      data.section === "experience" ? "the work experience bullets (rewrite bullets for clarity, impact, and ATS keyword coverage — reorder by relevance to the JD)" :
+      data.section === "projects" ? "the projects section (rewrite descriptions for JD alignment, add measurable impact ONLY if already grounded, reorder bullets by relevance, keep it concise, highlight most relevant technologies)" :
+      data.section === "skills" ? "the skills section — reorder and re-group so the JD-relevant, honestly-held skills appear first; do not add skills the resume does not already list" :
+      "keyword coverage across the WHOLE document for ATS — surface honestly-held keywords already present, do not add anything the resume cannot support";
+    const sys = [
+      "You improve ONE section of a LaTeX resume with the mindset of a senior technical recruiter.",
+      "HARD RULES:",
+      "- Return the FULL updated .tex file. Preserve every LaTeX command, package, layout, spacing byte-for-byte outside the target section.",
+      "- Never invent experience, companies, tools, metrics, projects, or certifications. Only reword or reorder content grounded in the CURRENT resume.",
+      "- Optimise for the target role using JD vocabulary the candidate can honestly claim.",
+      "- Simple, recruiter-friendly, ATS-optimised English. Short sentences. Strong action verbs. Avoid AI clichés.",
+      "- Return STRICT JSON only: {\"tex\":\"<full updated file>\"}",
+    ].join("\n");
+    const user = [
+      `SECTION TO IMPROVE: ${focus}`,
+      v.job_title ? `TARGET ROLE: ${v.job_title}` : "",
+      v.company ? `TARGET COMPANY: ${v.company}` : "",
+      `JD CONTEXT:\n${(v.job_description ?? "").slice(0, 4000)}`,
+      v.custom_instructions ? `EXISTING CUSTOM INSTRUCTIONS:\n${v.custom_instructions}` : "",
+      data.instructions ? `USER'S ADDITIONAL INSTRUCTIONS (highest priority, still respect truthfulness):\n${data.instructions}` : "",
+      `FULL CURRENT LaTeX (return the FULL file back):\n${v.tex_content}`,
+    ].filter(Boolean).join("\n\n");
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
