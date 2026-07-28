@@ -186,7 +186,7 @@ function WorkspacePage() {
           <LatexPreview
             tex={tex}
             filename={q.data.project?.main_tex_filename ?? "resume.tex"}
-            downloadName={`${(v.company || "resume").replace(/[^A-Za-z0-9]+/g, "_")}_${(v.job_title || "role").replace(/[^A-Za-z0-9]+/g, "_")}`}
+            downloadName={resumeFileBaseName({ fullName: prefs.data?.fullName ?? null, email: prefs.data?.email ?? null, company: v.company ?? null })}
             autoCompile
             onCompiled={(b64) => { setCompiledTex(tex); setHasPdf(true); uploadPdf.mutate(b64); }}
             onErrors={(errs) => setErrorLines(errs.map((e) => e.line ?? 0).filter((n) => n > 0))}
