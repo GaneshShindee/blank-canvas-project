@@ -37,8 +37,10 @@ function WorkspacePage() {
   const delFn = useServerFn(deleteResumeVersion);
   const improveFn = useServerFn(improveResumeSection);
   const emailFn = useServerFn(generateApplicationEmail);
+  const prefsFn = useServerFn(getUserPreferences);
 
   const q = useQuery({ queryKey: ["resume-version", id], queryFn: () => getFn({ data: { id } }) });
+  const prefs = useQuery({ queryKey: ["user-prefs"], queryFn: () => prefsFn() });
   const [tex, setTex] = useState("");
   const [dirty, setDirty] = useState(false);
   const [errorLines, setErrorLines] = useState<number[]>([]);
