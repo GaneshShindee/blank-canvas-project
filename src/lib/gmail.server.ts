@@ -156,8 +156,33 @@ function buildBodyMime(text: string, pixelUrl?: string): { contentType: string; 
   return { contentType: `multipart/alternative; boundary="${boundary}"`, body };
 }
 
+/** Generate an RFC 5322 Message-ID we control, so replies/follow-ups can thread to it. */
+export function makeMessageId(domain = "mail.gmail.com") {
+  return `<${Date.now().toString(36)}.${Math.random().toString(36).slice(2)}@${domain}>`;
+}
+
+export type ThreadHeaders = {
+  /** Message-ID to stamp on the outgoing message. */
+  messageId?: string;
+  /** Message-ID of the message being replied to. */
+  inReplyTo?: string | null;
+  /** Full References chain. */
+  references?: string | null;
+};
+
+function threadHeaderLines(t?: ThreadHeaders): string[] {
+  if (!t) return [];
+  const out: string[] = [];
+  if (t.messageId) out.push(`Message-ID: ${t.messageId}`);
+  if (t.inReplyTo) out.push(`In-Reply-To: ${t.inReplyTo}`);
+  const refs = t.references ?? t.inReplyTo;
+  if (refs) out.push(`References: ${refs}`);
+  return out;
+}
+
 export function buildRawEmail(opts: {
   from: string; to: string; bcc?: string; subject: string; body: string; trackingPixelUrl?: string;
+  thread?: ThreadHeaders;
 }) {
   const mime = buildBodyMime(opts.body, opts.trackingPixelUrl);
   const headers = [
@@ -165,6 +190,7 @@ export function buildRawEmail(opts: {
     `To: ${opts.to}`,
     opts.bcc ? `Bcc: ${opts.bcc}` : null,
     `Subject: ${encodeHeader(opts.subject)}`,
+    ...threadHeaderLines(opts.thread),
     `MIME-Version: 1.0`,
     `Content-Type: ${mime.contentType}`,
   ].filter((l): l is string => l !== null);
@@ -173,6 +199,7 @@ export function buildRawEmail(opts: {
   return base64url(message);
 
 }
+
 
 export type EmailAttachment = {
   filename: string;
@@ -214,11 +241,12 @@ export function buildRawEmailWithAttachments(opts: {
   body: string;
   attachments: EmailAttachment[];
   trackingPixelUrl?: string;
+  thread?: ThreadHeaders;
 }) {
   if (!opts.attachments || opts.attachments.length === 0) {
     return buildRawEmail({
       from: opts.from, to: opts.to, bcc: opts.bcc, subject: opts.subject, body: opts.body,
-      trackingPixelUrl: opts.trackingPixelUrl,
+      trackingPixelUrl: opts.trackingPixelUrl, thread: opts.thread,
     });
   }
   const boundary = `=_ses_${Math.random().toString(36).slice(2)}_${Date.now().toString(36)}`;
@@ -227,6 +255,7 @@ export function buildRawEmailWithAttachments(opts: {
     `To: ${opts.to}`,
     opts.bcc ? `Bcc: ${opts.bcc}` : null,
     `Subject: ${encodeHeader(opts.subject)}`,
+    ...threadHeaderLines(opts.thread),
     `MIME-Version: 1.0`,
     `Content-Type: multipart/mixed; boundary="${boundary}"`,
   ].filter(Boolean);
@@ -254,18 +283,19 @@ export function buildRawEmailWithAttachments(opts: {
   return Buffer.from(message, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-export async function gmailSend(accessToken: string, raw: string) {
+export async function gmailSend(accessToken: string, raw: string, threadId?: string | null) {
   const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ raw }),
+    body: JSON.stringify(threadId ? { raw, threadId } : { raw }),
   });
   if (!res.ok) throw new Error(`Gmail send failed: ${res.status} ${await res.text()}`);
   return (await res.json()) as { id: string; threadId: string };
 }
+
 
 export function callbackRedirectUri(origin: string) {
   return `${origin}/api/public/gmail/callback`;

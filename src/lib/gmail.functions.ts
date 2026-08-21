@@ -172,7 +172,10 @@ const sendSchema = z.object({
     base64: z.string().min(1),
     size: z.number().int().positive().max(25 * 1024 * 1024),
   })).max(10).optional(),
+  /** "bcc" = one message with all recipients in BCC (default). "individual" = one message per recipient. */
+  sendMode: z.enum(["bcc", "individual"]).optional(),
 });
+
 
 export const sendEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
