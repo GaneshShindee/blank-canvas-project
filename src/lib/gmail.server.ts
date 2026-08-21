@@ -156,8 +156,33 @@ function buildBodyMime(text: string, pixelUrl?: string): { contentType: string; 
   return { contentType: `multipart/alternative; boundary="${boundary}"`, body };
 }
 
+/** Generate an RFC 5322 Message-ID we control, so replies/follow-ups can thread to it. */
+export function makeMessageId(domain = "mail.gmail.com") {
+  return `<${Date.now().toString(36)}.${Math.random().toString(36).slice(2)}@${domain}>`;
+}
+
+export type ThreadHeaders = {
+  /** Message-ID to stamp on the outgoing message. */
+  messageId?: string;
+  /** Message-ID of the message being replied to. */
+  inReplyTo?: string | null;
+  /** Full References chain. */
+  references?: string | null;
+};
+
+function threadHeaderLines(t?: ThreadHeaders): string[] {
+  if (!t) return [];
+  const out: string[] = [];
+  if (t.messageId) out.push(`Message-ID: ${t.messageId}`);
+  if (t.inReplyTo) out.push(`In-Reply-To: ${t.inReplyTo}`);
+  const refs = t.references ?? t.inReplyTo;
+  if (refs) out.push(`References: ${refs}`);
+  return out;
+}
+
 export function buildRawEmail(opts: {
   from: string; to: string; bcc?: string; subject: string; body: string; trackingPixelUrl?: string;
+  thread?: ThreadHeaders;
 }) {
   const mime = buildBodyMime(opts.body, opts.trackingPixelUrl);
   const headers = [
@@ -165,6 +190,7 @@ export function buildRawEmail(opts: {
     `To: ${opts.to}`,
     opts.bcc ? `Bcc: ${opts.bcc}` : null,
     `Subject: ${encodeHeader(opts.subject)}`,
+    ...threadHeaderLines(opts.thread),
     `MIME-Version: 1.0`,
     `Content-Type: ${mime.contentType}`,
   ].filter((l): l is string => l !== null);
@@ -173,6 +199,7 @@ export function buildRawEmail(opts: {
   return base64url(message);
 
 }
+
 
 export type EmailAttachment = {
   filename: string;
