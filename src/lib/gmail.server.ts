@@ -241,11 +241,12 @@ export function buildRawEmailWithAttachments(opts: {
   body: string;
   attachments: EmailAttachment[];
   trackingPixelUrl?: string;
+  thread?: ThreadHeaders;
 }) {
   if (!opts.attachments || opts.attachments.length === 0) {
     return buildRawEmail({
       from: opts.from, to: opts.to, bcc: opts.bcc, subject: opts.subject, body: opts.body,
-      trackingPixelUrl: opts.trackingPixelUrl,
+      trackingPixelUrl: opts.trackingPixelUrl, thread: opts.thread,
     });
   }
   const boundary = `=_ses_${Math.random().toString(36).slice(2)}_${Date.now().toString(36)}`;
@@ -254,6 +255,7 @@ export function buildRawEmailWithAttachments(opts: {
     `To: ${opts.to}`,
     opts.bcc ? `Bcc: ${opts.bcc}` : null,
     `Subject: ${encodeHeader(opts.subject)}`,
+    ...threadHeaderLines(opts.thread),
     `MIME-Version: 1.0`,
     `Content-Type: multipart/mixed; boundary="${boundary}"`,
   ].filter(Boolean);
@@ -281,18 +283,19 @@ export function buildRawEmailWithAttachments(opts: {
   return Buffer.from(message, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-export async function gmailSend(accessToken: string, raw: string) {
+export async function gmailSend(accessToken: string, raw: string, threadId?: string | null) {
   const res = await fetch("https://gmail.googleapis.com/gmail/v1/users/me/messages/send", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${accessToken}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ raw }),
+    body: JSON.stringify(threadId ? { raw, threadId } : { raw }),
   });
   if (!res.ok) throw new Error(`Gmail send failed: ${res.status} ${await res.text()}`);
   return (await res.json()) as { id: string; threadId: string };
 }
+
 
 export function callbackRedirectUri(origin: string) {
   return `${origin}/api/public/gmail/callback`;
